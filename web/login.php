@@ -15,9 +15,15 @@ if (isset($_POST['login'])) {
     $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
     $stmt->execute([$email]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    
     if ($user && password_verify($mdp, $user['mdp'])) {
         $_SESSION['user'] = $user;
-        header('Location: dashboard.php');
+        // Rediriger selon le rôle : admin ou utilisateur standard
+        if ($user['admin'] == 1) {
+            header('Location: admin_dashboard.php');
+        } else {
+            header('Location: dashboard.php');
+        }
         exit;
     } else {
         $message = "Identifiants incorrects";
@@ -32,21 +38,21 @@ if (isset($_POST['login'])) {
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h2>Connexion</h2>
-        <?php if ($message): ?>
-            <div class="message error"><?= htmlspecialchars($message) ?></div>
-        <?php endif; ?>
-        <form method="post">
-            <label>Email :</label>
-            <input type="email" name="email" required>
-            
-            <label>Mot de passe :</label>
-            <input type="password" name="mdp" required>
-            
-            <button type="submit" name="login">Se connecter</button>
-        </form>
-        <p>Pas de compte ? <a href="register.php">Inscrivez-vous ici</a></p>
-    </div>
+<div class="container">
+    <h2>Connexion</h2>
+    <?php if ($message): ?>
+        <div class="message error"><?= htmlspecialchars($message) ?></div>
+    <?php endif; ?>
+    <form method="post" action="">
+        <label>Email :</label>
+        <input type="email" name="email" required>
+        
+        <label>Mot de passe :</label>
+        <input type="password" name="mdp" required>
+        
+        <button type="submit" name="login">Se connecter</button>
+    </form>
+    <p>Pas de compte ? <a href="register.php">Inscrivez-vous ici</a></p>
+</div>
 </body>
 </html>
