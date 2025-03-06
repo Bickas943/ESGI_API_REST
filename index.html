@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentation API REST</title>
+  <style>
+    /* Styles généraux */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1, h2, h3, h4, h5, h6 {
+      color: #333;
+    }
+    p {
+      line-height: 1.6;
+    }
+    pre {
+      background: #eee;
+      padding: 10px;
+      border-radius: 3px;
+      white-space: pre-wrap;
+    }
+    code {
+      font-family: monospace;
+    }
+    ul, ol {
+      margin-left: 20px;
+    }
+    .tree {
+      font-family: monospace;
+      white-space: pre;
+      background: #eee;
+      padding: 10px;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Documentation API REST</h1>
+    <p><em>Par L. RUTELLA, M. FREY et L. LE MOULT</em></p>
+    
+    <h2>Sommaire</h2>
+    <ol>
+      <li>Arborescence des fichiers</li>
+      <li>authenticate.php</li>
+      <li>config.php</li>
+      <li>db.php</li>
+      <li>orders.php</li>
+      <li>users.php</li>
+      <li>admin_create_order.php</li>
+      <li>admin_create_user.php</li>
+      <li>admin_dashboard.php</li>
+      <li>admin_delete_order.php</li>
+      <li>admin_delete_token.php</li>
+      <li>admin_delete_user.php</li>
+      <li>admin_edit_order.php</li>
+      <li>admin_edit_user.php</li>
+      <li>admin_orders.php</li>
+      <li>admin_tokens.php</li>
+      <li>admin_users.php</li>
+      <li>Dashboard.php</li>
+      <li>Login.php</li>
+      <li>logout.php</li>
+      <li>register.php</li>
+      <li>Style.css</li>
+    </ol>
+    
+    <h2>Arborescence des fichiers</h2>
+    <pre class="tree">
+├── authenticate.php
+├── config.php
+├── db.php
+├── orders.php
+├── users.php
+└── web
+    ├── admin_create_order.php
+    ├── admin_create_user.php
+    ├── admin_dashboard.php
+    ├── admin_delete_order.php
+    ├── admin_delete_token.php
+    ├── admin_delete_user.php
+    ├── admin_edit_order.php
+    ├── admin_edit_user.php
+    ├── admin_orders.php
+    ├── admin_tokens.php
+    ├── admin_users.php
+    ├── dashboard.php
+    ├── login.php
+    ├── logout.php
+    ├── register.php
+    └── style.css
+    </pre>
+    
+    <h2>authenticate.php</h2>
+    <p><strong>Méthodes :</strong></p>
+    <p>POST</p>
+    <p><strong>Arguments :</strong></p>
+    <p>Requis : email, mdp</p>
+    <p><strong>Utilité :</strong></p>
+    <p>Dépendante de « db.php »</p>
+    <p>Permet si la méthode est POST (Sinon message d’erreur)</p>
+    <p>Et si les arguments sont correctement renseignés (Sinon message d’erreur)</p>
+    <p>D’affecter à des variables <code>$email</code> et <code>$mdp</code> les entrées utilisateurs afin d’exécuter une requête SQL pour récupérer l’utilisateur (via l’email unique)</p>
+    <p>Si ce dernier existe (Sinon Message d’erreur) alors on vérifie son mot de passe.</p>
+    <p>Si le mot de passe correspond à l’utilisateur alors le code crée un Token (Sinon Message d’erreur) qui va être Hashé</p>
+    <p>Enfin le code insert dans la base de données (table user_token) le token hashé et l’user_id</p>
+    <p>Puis il l’affiche le résultat à l’utilisateur</p>
+    
+    <h2>config.php</h2>
+    <p><strong>Utilité :</strong></p>
+    <p>Ce fichier contient les login/Mot de passe d’authentification à la BDD.</p>
+    <p>D’abord <code>$host</code> la localisation de la BDD</p>
+    <p>Puis le nom de la base de données <code>$dbname</code></p>
+    <p>Le nom d’utilisateur <code>$username</code> de la BDD</p>
+    <p>Et finalement le mot de passe</p>
+    
+    <h2>db.php</h2>
+    <p><strong>Utilité :</strong></p>
+    <p>Ce fichier a besoin du fichier de configuration « config.php » pour fonctionner</p>
+    <p>Le code gère les erreurs via un bloc try &amp; catch puis on essaye d’initialiser un nouveau PDO dans la variable <code>$pdo</code> avec les informations de config.php</p>
+    <p>Si jamais cela échoue un message d’erreur est affiché</p>
+    
+    <h2>orders.php</h2>
+    <p><strong>Méthodes :</strong></p>
+    <p>POST, GET, PUT, DELETE</p>
+    <p><strong>Arguments :</strong></p>
+    <p>Requis : numero_commande, prix, objet, date_livraison, status</p>
+    <p>Facultatif : user_id</p>
+    <p><strong>Utilité :</strong></p>
+    <p>Ce fichier a besoin du fichier « db.php » pour fonctionner</p>
+    <p>Ce dernier exporte ces résultats via JSON</p>
+    <p>Il authentifie l’utilisateur via le token passé dans l'URL (<code>?token=...</code>) (Sinon Message d’erreur)</p>
+    <p>On stocke le Token dans la variable <code>$rawToken</code></p>
+    <p>Ensuite il vérifie via une requête SQL si le token est bien présent dans la BDD (table user_token) (Sinon Message d’erreur)</p>
+    <p>On initialise dans la variable <code>$CurrentUser</code> les informations de l’utilisateur de la table user_token (notamment l’user_id)</p>
+    <p>En fonction de la méthode utilisée que l’on stocke dans la variable <code>$methode</code></p>
+    <ul>
+      <li>Si la méthode utilisée est GET
+        <ul>
+          <li>Si l’utilisateur actuel possède l’argument admin à 1 sur la BDD alors :</li>
+          <ul>
+            <li>Si un id est renseigné alors on lui affiche la commande correspondante via une requête SQL</li>
+            <li>Sinon si un numéro de commande est renseigné alors on lui affiche la commande correspondante via une requête SQL</li>
+            <li>Sinon on affiche toutes les commandes via une requête SQL</li>
+          </ul>
+          <li>Sinon (Argument Admin autre que 1) :</li>
+          <ul>
+            <li>Si un id est renseigné alors on affiche la commande qui correspond à ce paramètre et uniquement s’il concerne l’utilisateur via une requête SQL</li>
+            <li>Sinon si un numéro de commande est renseigné alors on affiche la commande qui correspond à ce paramètre et uniquement s’il concerne l’utilisateur via une requête SQL</li>
+            <li>Sinon on affiche toutes les commandes de l’utilisateur via une requête SQL</li>
+          </ul>
+          <li>Et le code s’arrête</li>
+        </ul>
+      </li>
+      <li>Dans le cas où la méthode utilisée est POST
+        <ul>
+          <li>Si un des arguments requis est manquant alors le code affiche une erreur</li>
+          <li>Si l’utilisateur authentifié est admin et qu’un User ID est indiqué alors l’utilisateur est autorisé à voir les commandes de cet user_id, sinon l’user_id indiqué sera celui de l’utilisateur authentifié</li>
+          <li>On initialise les variables <code>$numero_de_commande</code>, <code>$prix</code>, <code>$objet</code>, <code>$date_livraison</code> et <code>$status</code></li>
+          <li>Via une requête SQL on insère dans la BDD une commande avec l’id utilisateur, la date, l’objet, le prix et l’état de la commande</li>
+          <li>Si la requête SQL échoue alors un message d’erreur s’affiche</li>
+          <li>Le code s’arrête</li>
+        </ul>
+      </li>
+      <li>Dans le cas où la méthode utilisée est PUT
+        <ul>
+          <li>Le code vérifie que l’utilisateur a bien entré l’id de la commande, sinon il affiche un message d’erreur</li>
+          <li>Si l’utilisateur n’a pas l’argument admin == 1 alors on vérifie son éligibilité sur la commande via une requête SQL</li>
+          <li>S’il n’est pas éligible, un message d’erreur s’affiche et le code s’arrête</li>
+          <li>Sinon, on récupère les données et on crée 2 listes <code>$fields</code> et <code>$values</code></li>
+          <li>On vérifie les données à mettre à jour une à une</li>
+          <li>S’il n’y en a pas, un message d’erreur s’affiche</li>
+          <li>Puis on exécute les mises à jour via une requête SQL</li>
+          <li>Et le code s’arrête</li>
+        </ul>
+      </li>
+      <li>Dans le cas où la méthode utilisée est DELETE
+        <ul>
+          <li>Le code vérifie que l’utilisateur a bien entré l’id de la commande, sinon il affiche un message d’erreur</li>
+          <li>Si l’utilisateur n’a pas l’argument admin == 1 alors on vérifie son éligibilité sur la commande via une requête SQL</li>
+          <li>S’il n’est pas éligible, un message d’erreur s’affiche et le code s’arrête</li>
+          <li>Si l’utilisateur est éligible, le code exécute une commande SQL pour supprimer la commande</li>
+          <li>Si cette requête s’exécute correctement alors on affiche le résultat, sinon un message d’erreur s’affiche</li>
+          <li>Et le code s’arrête</li>
+        </ul>
+      </li>
+      <li>Si le code est confronté à une autre méthode alors il affiche un message d’erreur et s’arrête</li>
+    </ul>
+    
+    <h2>users.php</h2>
+    <p><strong>Méthodes :</strong></p>
+    <p>POST, GET, PUT, DELETE</p>
+    <p><strong>Arguments :</strong></p>
+    <p>Requis : nom, prénom, mdp, email</p>
+    <p>Facultatif : Adresse, n_tel, admin</p>
+    <p><strong>Utilité :</strong></p>
+    <p>Ce fichier a besoin du fichier « db.php » pour fonctionner</p>
+    <p>Ce dernier exporte ces résultats via JSON</p>
+    <p>Il authentifie l’utilisateur via le token passé dans l'URL (<code>?token=...</code>) (Sinon Message d’erreur)</p>
+    <p>On stocke le Token dans la variable <code>$rawToken</code></p>
+    <p>Ensuite il vérifie via une requête SQL si le token est bien présent dans la BDD (table user_token) (Sinon Message d’erreur)</p>
+    <p>On initialise dans la variable <code>$CurrentUser</code> les informations de l’utilisateur de la table user_token (notamment l’user_id)</p>
+    <p>En fonction de la méthode utilisée que l’on stocke dans la variable <code>$methode</code></p>
+    <ul>
+      <li>Si la méthode utilisée est GET
+        <ul>
+          <li>Si l’utilisateur actuel possède l’argument admin à 1 sur la BDD et si un id est renseigné alors on affiche l’utilisateur correspondant via une requête SQL</li>
+          <li>Sinon, on affiche tous les utilisateurs via une requête SQL</li>
+        </ul>
+      </li>
+      <li>Sinon (si l’utilisateur n’est pas admin)
+        <ul>
+          <li>Si un id est renseigné alors on affiche l’utilisateur qui correspond à ce paramètre et uniquement s’il concerne l’utilisateur via une requête SQL</li>
+        </ul>
+      </li>
+      <li>Puis le code s’arrête</li>
+      <li>Dans le cas où la méthode utilisée est POST
+        <ul>
+          <li>Si l’utilisateur actuel possède l’argument admin à 1 sur la BDD, alors il peut créer un utilisateur, sinon un message de refus s’affiche et le code s’arrête</li>
+          <li>Le code vérifie ensuite que les arguments requis sont renseignés, sinon un message d’erreur s’affiche et le code s’arrête</li>
+          <li>On initialise les variables des différents arguments</li>
+          <li>Le code effectue la requête SQL et affiche le succès ou l’erreur de cette dernière</li>
+          <li>Puis le code s’arrête</li>
+        </ul>
+      </li>
+      <li>Dans le cas où la méthode utilisée est PUT
+        <ul>
+          <li>Le code vérifie que l’utilisateur a bien entré l’id de l’utilisateur à modifier, sinon il affiche un message d’erreur et le code s’arrête</li>
+          <li>Si l’utilisateur actuel ne possède pas l’argument admin à 1 et si un id utilisateur différent du sien est indiqué, alors un message d’erreur s’affiche car un utilisateur non admin ne peut modifier que son propre compte</li>
+          <li>On récupère les données et on crée 2 listes <code>$fields</code> et <code>$values</code></li>
+          <li>On vérifie les données à mettre à jour une à une (seul un utilisateur admin à 1 peut modifier l’argument admin)</li>
+          <li>S’il n’y en a pas, un message d’erreur s’affiche</li>
+          <li>Puis on exécute les mises à jour via une requête SQL</li>
+          <li>Et le code s’arrête</li>
+        </ul>
+      </li>
+      <li>Dans le cas où la méthode utilisée est DELETE
+        <ul>
+          <li>Le code vérifie que l’utilisateur a bien entré l’id de l’utilisateur à supprimer, sinon il affiche un message d’erreur et le code s’arrête</li>
+          <li>On récupère l’id de l’utilisateur à supprimer</li>
+          <li>Si l’utilisateur actuel ne possède pas l’argument admin à 1 et si un id utilisateur différent du sien est indiqué, alors un message d’erreur s’affiche car un utilisateur non admin ne peut supprimer que son propre compte</li>
+          <li>Et le code s’arrête</li>
+          <li>Via une requête SQL on supprime le compte indiqué et on affiche le résultat de la requête</li>
+          <li>Le code s’arrête finalement</li>
+        </ul>
+      </li>
+      <li>Dans le cas où la méthode utilisée n’est pas indiquée, un message d’erreur s’affiche et le code s’arrête</li>
+    </ul>
+    
+    <h2>admin_create_order.php</h2>
+    <p><strong>Méthodes :</strong></p>
+    <p>POST</p>
+    <p><strong>Arguments :</strong></p>
+    <p>Requis : user_id, numero_commande, prix, objet, date_livraison, status</p>
+    <p><strong>Utilité :</strong></p>
+    <p>Ce fichier a besoin du fichier « db.php » pour fonctionner</p>
+    <p>Le code démarre une session</p>
+    <p>Si l’utilisateur n’a pas de session authentifiée alors il est renvoyé vers le fichier <code>login.php</code></p>
+    <p>Si la méthode utilisée est POST alors le code récupère les arguments en entrée</p>
+    <p>Puis exécute une requête SQL pour les intégrer à la Base de données.</p>
+    <p>Si cette requête réussit, le code renvoie l’utilisateur vers la page <code>admin_orders.php</code></p>
+    <p>Sinon, le code affiche une erreur</p>
+    <p>Si la méthode utilisée n’est pas POST, le code renvoie l’utilisateur vers la page <code>admin_orders.php</code></p>
+    
+    <h2>admin_create_user.php</h2>
+    <p><strong>Méthodes :</strong></p>
+    <p>POST</p>
+    <p><strong>Arguments :</strong></p>
+    <p>Requis : nom, prenom, email, mdp, adresse, n_tel, admin</p>
+    <p><strong>Utilité :</strong></p>
+    <p>Ce fichier a besoin du fichier « db.php » pour fonctionner</p>
+    <p>Le code démarre une session</p>
+    <p>Si l’utilisateur n’a pas de session authentifiée alors il est renvoyé vers le fichier <code>login.php</code></p>
+    <p>Si la méthode utilisée est POST alors le code récupère les arguments en entrée</p>
+    <p>Puis exécute une requête SQL pour les intégrer à la Base de données.</p>
+    <p>Si cette requête réussit, le code renvoie l’utilisateur vers la page <code>admin_users.php</code></p>
+    <p>Sinon, le code affiche une erreur</p>
+    <p>Si la méthode utilisée n’est pas POST, le code renvoie l’utilisateur vers la page <code>admin_users.php</code></p>
+    
+    <h2>admin_dashboard.php</h2>
+    <p><strong>Utilité :</strong></p>
+    <p>Le code démarre une session</p>
+    <p>Si l’utilisateur n’a pas de session authentifiée alors il est renvoyé vers le fichier <code>login.php</code></p>
+    <p>On affiche ensuite les différents éléments graphiques pour l’utilisateur admin pour qu’il puisse se rediriger vers les pages : <code>admin_users.php</code>, <code>admin_orders.php</code>, <code>admin_tokens.php</code> et <code>logout.php</code></p>
+    
+    <h2>admin_delete_order.php</h2>
+    <p><strong>Utilité :</strong></p>
+    <p>Ce fichier a besoin du fichier « db.php » pour fonctionner</p>
+    <p>Le code démarre une session</p>
+    <p>Si l’utilisateur n’a pas de session authentifiée alors il est renvoyé vers le fichier <code>login.php</code></p>
+    <p>Si le code possède un argument <code>id</code> alors il exécute une requête SQL pour supprimer la commande en question</p>
+    <p>Si cette requête réussit, le code renvoie l’utilisateur vers la page <code>admin_orders.php</code></p>
+    <p>Sinon, le code affiche une erreur</p>
+    <p>Si aucun argument <code>id</code> n’est fourni, la page renvoie l’utilisateur vers la page <code>admin_orders.php</code></p>
+    
+    <h2>admin_delete_token.php</h2>
+    <p><strong>Utilité :</strong></p>
+    <p>Ce fichier a besoin du fichier « db.php » pour fonctionner</p>
+    <p>Le code démarre une session</p>
+    <p>Si l’utilisateur n’a pas de session authentifiée alors il est renvoyé vers le fichier <code>login.php</code></p>
+    <p>Si le code possède un argument <code>id</code> alors il exécute une requête SQL pour supprimer le token en question</p>
+    <p>Si cette requête réussit, le code renvoie l’utilisateur vers la page <code>admin_tokens.php</code></p>
+    <p>Sinon, le code affiche un message d’erreur</p>
+    <p>Si aucun argument <code>id</code> n’est fourni, la page renvoie l’utilisateur vers la page <code>admin_tokens.php</code></p>
+    
+    <h2>admin_delete_user.php</h2>
+    <p><strong>Utilité :</strong></p>
+    <p>Ce fichier a besoin du fichier « db.php » pour fonctionner</p>
+    <p>Le code démarre une session</p>
+    <p>Si l’utilisateur n’a pas de session authentifiée alors il est renvoyé vers le fichier <code>login.php</code></p>
+    <p>Si le code possède un argument <code>id</code> alors il exécute une requête SQL pour supprimer l’utilisateur en question</p>
+    <p>Si cette requête réussit, le code renvoie l’utilisateur vers la page <code>admin_users.php</code></p>
+    <p>Sinon, le code affiche un message d’erreur</p>
+    <p>Si aucun argument <code>id</code> n’est fourni, la page renvoie l’utilisateur vers la page <code>admin_users.php</code></p>
+    
+    <h2>admin_edit_order.php</h2>
+    <p><strong>Utilité :</strong></p>
+    <p>Ce fichier a besoin du fichier « db.php » pour fonctionner</p>
+    <p>Le code démarre une session</p>
+    <p>Si l’utilisateur n’a pas de session authentifiée alors il est renvoyé vers le fichier <code>login.php</code></p>
+    <p>Si aucun argument <code>id</code> n’est fourni, le code renvoie l’utilisateur vers la page <code>admin_orders.php</code></p>
+    <p>Ensuite, l’<strong>id</strong> est affecté à la variable <code>$orderId</code> et une requête SQL est préparée pour rechercher la commande correspondante dans la base de données</p>
+    <p>Si la commande n’est pas trouvée, un message d’erreur est affiché et le code s’arrête</p>
+    <p>Sinon, le code initialise les différents arguments à modifier et crée une requête SQL pour effectuer la ou les modifications</p>
+    <p>Si cette requête réussit, l’utilisateur est renvoyé vers la page <code>admin_orders.php</code></p>
+    <p>Sinon, un message d’erreur est affiché</p>
+    <p>Enfin, les éléments graphiques permettant de remplir les champs de modification sont affichés</p>
+    
+    <h2>admin_edit_user.php</h2>
+    <p><strong>Utilité :</strong></p>
+    <p>Ce fichier a besoin du fichier « db.php » pour fonctionner</p>
+    <p>Le code démarre une session</p>
+    <p>Si l’utilisateur n’a pas de session authentifiée alors il est renvoyé vers le fichier <code>login.php</code></p>
+    <p>Si aucun argument <code>id</code> n’est fourni, le code renvoie l’utilisateur vers la page <code>admin_users.php</code></p>
+    <p>Ensuite, l’<strong>id</strong> est affecté à la variable <code>$id</code> et une requête SQL est préparée pour rechercher l’utilisateur correspondant dans la base de données</p>
+    <p>Si l’utilisateur n’est pas trouvé, un message d’erreur est affiché et le code s’arrête</p>
+    <p>Sinon, le code initialise les différents arguments à modifier (à l’exception du mot de passe) et crée une requête SQL pour effectuer la ou les modifications</p>
+    <p>Si le mot de passe a été modifié, il est intégré aux arguments, sinon non</p>
+    <p>Si cette requête réussit, l’utilisateur est renvoyé vers la page <code>admin_users.php</code></p>
+    <p>Sinon, un message d’erreur est affiché</p>
+    <p>Enfin, les éléments graphiques permettant de remplir les champs de modification sont affichés</p>
+    
+    <h2>admin_orders.php</h2>
+    <p><strong>Utilité :</strong></p>
+    <p>Ce fichier a besoin du fichier « db.php » pour fonctionner</p>
+    <p>Le code démarre une session</p>
+    <p>Si l’utilisateur n’a pas de session authentifiée, il est renvoyé vers le fichier <code>login.php</code></p>
+    <p>Ensuite, les éléments graphiques permettant de voir, supprimer ou modifier les commandes via une boucle récursive sont affichés</p>
+    <p>Ou alors, la possibilité de créer une nouvelle commande est offerte</p>
+    <p>Il est également possible de revenir au dashboard principal (<code>admin_dashboard.php</code>)</p>
+    
+    <h2>admin_tokens.php</h2>
+    <p><strong>Utilité :</strong></p>
+    <p>Ce fichier est utilisé pour la gestion des clés API (tokens) des utilisateurs. Il permet d'afficher les tokens existants, d'associer un token à un utilisateur et de générer de nouvelles clés API.</p>
+    <p><strong>Dépendances :</strong></p>
+    <p>Ce fichier nécessite <code>db.php</code> pour interagir avec la base de données et <code>style.css</code> pour l'affichage.</p>
+    <p><strong>Fonctionnement :</strong></p>
+    <ul>
+      <li><strong>Vérification de l'authentification et des droits d'accès :</strong>
+        <ul>
+          <li>Démarre une session (<code>session_start()</code>).</li>
+          <li>Vérifie si l'utilisateur est connecté et possède les droits d'administration (<code>admin = 1</code>).</li>
+          <li>Si l'utilisateur n'est pas admin, il est redirigé vers <code>login.php</code>.</li>
+        </ul>
+      </li>
+      <li><strong>Récupération des tokens existants :</strong>
+        <ul>
+          <li>Exécute une requête SQL pour récupérer tous les tokens présents dans la table <code>user_tokens</code>.</li>
+          <li>Associe chaque token à l'email de l'utilisateur correspondant.</li>
+          <li>Trie les résultats par date de création (<code>created_at</code>).</li>
+        </ul>
+      </li>
+      <li><strong>Récupération des utilisateurs existants :</strong>
+        <ul>
+          <li>Exécute une requête SQL pour récupérer tous les utilisateurs disponibles, affichés par ordre croissant d'ID.</li>
+        </ul>
+      </li>
+      <li><strong>Gestion de la création de token :</strong>
+        <ul>
+          <li>Si la requête est de type POST et contient le paramètre <code>create_token</code> :</li>
+          <ul>
+            <li>Récupère l'id de l'utilisateur concerné.</li>
+            <li>Vérifie si cet utilisateur existe dans la base de données.</li>
+            <li>Si l'utilisateur est valide :</li>
+            <ul>
+              <li>Génère un token brut (<code>bin2hex(random_bytes(16))</code>).</li>
+              <li>Hache le token avec <code>password_hash()</code>.</li>
+              <li>Insère le token haché dans la table <code>user_tokens</code> avec l'id utilisateur.</li>
+              <li>Affiche le token brut une seule fois à l'utilisateur.</li>
+            </ul>
+            <li>Si l'utilisateur n'existe pas, affiche un message d'erreur.</li>
+          </ul>
+        </ul>
+      </li>
+      <li><strong>Affichage :</strong>
+        <ul>
+          <li>Un formulaire permet de sélectionner un utilisateur et de générer un token.</li>
+          <li>Affiche les tokens existants et leurs informations (ID, utilisateur associé, date de création).</li>
+          <li>Affiche un message en cas de succès ou d'erreur.</li>
+        </ul>
+      </li>
+      <li><strong>Navigation :</strong>
+        <ul>
+          <li>Un lien permet de retourner au tableau de bord administrateur (<code>admin_dashboard.php</code>).</li>
+        </ul>
+      </li>
+    </ul>
+    
+    <h2>admin_users.php</h2>
+    <p><strong>Utilité :</strong></p>
+    <p>Ce fichier a besoin du fichier « db.php » pour fonctionner</p>
+    <p>Le code démarre une session</p>
+    <p>Si l’utilisateur n’a pas de session authentifiée, il est renvoyé vers le fichier <code>login.php</code></p>
+    <p>Ensuite, les éléments graphiques permettant de voir, supprimer ou modifier les utilisateurs via une boucle récursive sont affichés</p>
+    <p>Ou alors, la possibilité de créer un nouvel utilisateur est offerte</p>
+    <p>Il est également possible de revenir au dashboard principal (<code>admin_dashboard.php</code>)</p>
+    
+    <h2>Dashboard.php</h2>
+    <p><strong>Utilité :</strong></p>
+    <p>Ce fichier est utilisé pour la gestion des clés API d’un utilisateur connecté. Il permet d’afficher les clés existantes, d’en générer de nouvelles et de supprimer celles qui ne sont plus utilisées.</p>
+    <p><strong>Dépendances :</strong></p>
+    <p><code>db.php</code> : Permet d’interagir avec la base de données.<br>
+    <code>style.css</code> : Assure la mise en page de l’interface utilisateur.</p>
+    <p><strong>Fonctionnement :</strong></p>
+    <ul>
+      <li><strong>Vérification de l'authentification :</strong>
+        <ul>
+          <li>Démarre une session (<code>session_start()</code>).</li>
+          <li>Vérifie si l’utilisateur est connecté (<code>$_SESSION['user']</code>).</li>
+          <li>Si l’utilisateur n’est pas connecté, il est redirigé vers <code>login.php</code>.</li>
+        </ul>
+      </li>
+      <li><strong>Récupération des clés API existantes :</strong>
+        <ul>
+          <li>Exécute une requête SQL pour récupérer les clés API associées à l’utilisateur connecté.</li>
+          <li>Trie les résultats par date de création (<code>created_at</code>).</li>
+        </ul>
+      </li>
+      <li><strong>Gestion de la création de clé API :</strong>
+        <ul>
+          <li>Si la requête est de type POST et contient <code>generate</code> :</li>
+          <ul>
+            <li>Génère une clé API brute (<code>bin2hex(random_bytes(16))</code>).</li>
+            <li>Hache la clé avec <code>password_hash()</code>.</li>
+            <li>Insère la clé hachée dans la table <code>user_tokens</code> avec l’ID de l’utilisateur.</li>
+            <li>Affiche la clé brute une seule fois à l'utilisateur.</li>
+          </ul>
+        </ul>
+      </li>
+      <li><strong>Gestion de la suppression de clé API :</strong>
+        <ul>
+          <li>Si la requête est de type POST et contient <code>delete_token</code> :</li>
+          <ul>
+            <li>Récupère l’ID de la clé à supprimer.</li>
+            <li>Vérifie que la clé appartient à l’utilisateur connecté.</li>
+            <li>Supprime la clé de la base de données.</li>
+          </ul>
+        </ul>
+      </li>
+      <li><strong>Déconnexion de l’utilisateur :</strong>
+        <ul>
+          <li>Si la requête est de type POST et contient <code>logout</code> :</li>
+          <ul>
+            <li>Détruit la session utilisateur (<code>session_destroy()</code>).</li>
+            <li>Redirige vers <code>login.php</code>.</li>
+          </ul>
+        </ul>
+      </li>
+      <li><strong>Affichage :</strong>
+        <ul>
+          <li>Un tableau liste toutes les clés API associées à l’utilisateur (ID, date de création).</li>
+          <li>Un formulaire permet de générer une nouvelle clé API.</li>
+          <li>Un bouton permet de supprimer une clé API spécifique.</li>
+          <li>Un message informe l’utilisateur en cas de succès ou d’échec des actions.</li>
+        </ul>
+      </li>
+      <li><strong>Navigation :</strong>
+        <ul>
+          <li>Un bouton permet de se déconnecter (<code>logout</code>).</li>
+          <li>La gestion des clés API se fait directement depuis cette page.</li>
+        </ul>
+      </li>
+    </ul>
+    
+    <h2>Login.php</h2>
+    <p><strong>Utilité :</strong></p>
+    <p>Ce fichier gère l’authentification des utilisateurs. Il permet aux utilisateurs de se connecter à leur compte et les redirige en fonction de leur rôle (administrateur ou utilisateur standard).</p>
+    <p><strong>Dépendances :</strong></p>
+    <p><code>db.php</code> : Permet d’interagir avec la base de données.<br>
+    <code>style.css</code> : Assure la mise en page de l’interface utilisateur.</p>
+    <p><strong>Fonctionnement :</strong></p>
+    <ul>
+      <li><strong>Gestion de la session et de la configuration :</strong>
+        <ul>
+          <li>Démarre une session (<code>session_start()</code>).</li>
+          <li>Active l'affichage des erreurs pour le débogage (<code>error_reporting(E_ALL)</code>).</li>
+        </ul>
+      </li>
+      <li><strong>Traitement de la connexion :</strong>
+        <ul>
+          <li>Si l’utilisateur soumet le formulaire (<code>POST['login']</code>) :</li>
+          <ul>
+            <li>Récupère l’email et le mot de passe saisis.</li>
+            <li>Exécute une requête SQL pour récupérer l’utilisateur correspondant à l’email.</li>
+            <li>Vérifie si le mot de passe saisi correspond au mot de passe haché en base (<code>password_verify()</code>).</li>
+            <li>Si les identifiants sont corrects :</li>
+            <ul>
+              <li>Stocke les informations de l’utilisateur en session (<code>$_SESSION['user']</code>).</li>
+              <li>Redirige l’utilisateur :</li>
+              <ul>
+                <li>Vers <code>admin_dashboard.php</code> si c’est un administrateur.</li>
+                <li>Vers <code>dashboard.php</code> si c’est un utilisateur standard.</li>
+              </ul>
+            </ul>
+            <li>Si les identifiants sont incorrects, affiche un message d’erreur.</li>
+          </ul>
+        </ul>
+      </li>
+      <li><strong>Affichage :</strong>
+        <ul>
+          <li>Un formulaire permet à l’utilisateur de saisir son email et son mot de passe.</li>
+          <li>Un message d’erreur s’affiche en cas d’identifiants incorrects.</li>
+          <li>Un lien permet d’accéder à la page d’inscription (<code>register.php</code>).</li>
+        </ul>
+      </li>
+      <li><strong>Navigation :</strong>
+        <ul>
+          <li>L’utilisateur est redirigé vers le tableau de bord correspondant à son rôle après une connexion réussie.</li>
+          <li>Un lien permet de s’inscrire si l’utilisateur ne possède pas encore de compte.</li>
+        </ul>
+      </li>
+    </ul>
+    
+    <h2>logout.php</h2>
+    <p><strong>Utilité :</strong></p>
+    <p>Ce fichier permet de déconnecter un utilisateur en détruisant sa session et en le redirigeant vers la page de connexion.</p>
+    <p><strong>Dépendances :</strong></p>
+    <p>Aucune dépendance directe, mais il fonctionne en lien avec <code>login.php</code> et <code>dashboard.php</code>.</p>
+    <p><strong>Fonctionnement :</strong></p>
+    <ul>
+      <li><strong>Destruction de la session :</strong>
+        <ul>
+          <li>Démarre la session (<code>session_start()</code>).</li>
+          <li>Supprime toutes les données de session (<code>session_destroy()</code>).</li>
+        </ul>
+      </li>
+      <li><strong>Redirection après déconnexion :</strong>
+        <ul>
+          <li>Redirige immédiatement l’utilisateur vers la page de connexion (<code>login.php</code>).</li>
+          <li>Termine l'exécution du script avec <code>exit;</code>.</li>
+        </ul>
+      </li>
+      <li><strong>Navigation :</strong>
+        <ul>
+          <li>Après la déconnexion, l’utilisateur doit se reconnecter via <code>login.php</code> pour accéder à son compte.</li>
+        </ul>
+      </li>
+    </ul>
+    
+    <h2>register.php</h2>
+    <p><strong>Utilité :</strong></p>
+    <p>Ce fichier permet aux utilisateurs de créer un compte en s'inscrivant avec leurs informations personnelles.</p>
+    <p><strong>Dépendances :</strong></p>
+    <p><code>db.php</code> : Permet d’interagir avec la base de données.<br>
+    <code>style.css</code> : Fournit le style de la page d'inscription.</p>
+    <p><strong>Fonctionnement :</strong></p>
+    <ul>
+      <li><strong>Gestion du formulaire d'inscription :</strong>
+        <ul>
+          <li>Vérifie si le formulaire a été soumis (<code>isset($_POST['register'])</code>).</li>
+          <li>Récupère les informations saisies : nom, prenom, email, mdp (mot de passe), adresse (optionnelle), n_tel (optionnel).</li>
+          <li>Hash le mot de passe avec <code>password_hash()</code>.</li>
+        </ul>
+      </li>
+      <li><strong>Vérification de l'existence de l'email :</strong>
+        <ul>
+          <li>Exécute une requête SQL pour vérifier si l'email est déjà utilisé (<code>SELECT id FROM users WHERE email = ?</code>).</li>
+          <li>Si l'email existe, affiche un message d’erreur.</li>
+        </ul>
+      </li>
+      <li><strong>Création du compte :</strong>
+        <ul>
+          <li>Si l'email est unique, insère les informations dans la base de données (<code>INSERT INTO users (...)</code>).</li>
+          <li>Affiche un message de succès ou d’erreur selon le résultat de l'insertion.</li>
+        </ul>
+      </li>
+      <li><strong>Affichage :</strong>
+        <ul>
+          <li>Un formulaire permet aux utilisateurs de saisir leurs informations pour s'inscrire.</li>
+          <li>Un message s'affiche en cas de succès ou d’erreur.</li>
+          <li>Un lien permet de se connecter (<code>login.php</code>) si l'utilisateur a déjà un compte.</li>
+        </ul>
+      </li>
+      <li><strong>Navigation :</strong>
+        <ul>
+          <li>Une fois inscrit, l'utilisateur peut se connecter via <code>login.php</code>.</li>
+        </ul>
+      </li>
+    </ul>
+    
+    <h2>Style.css</h2>
+    <p><strong>Utilité :</strong></p>
+    <p>Ce fichier définit les styles CSS de l'interface utilisateur pour assurer une mise en page claire et agréable.</p>
+    <p><strong>Dépendances :</strong></p>
+    <p>Aucune, mais il est utilisé par plusieurs fichiers HTML et PHP pour uniformiser l'apparence.</p>
+    <p><strong>Fonctionnement :</strong></p>
+    <ul>
+      <li><strong>Styles généraux :</strong>
+        <ul>
+          <li>Définit une police de base (Arial, sans-serif).</li>
+          <li>Applique une couleur de fond gris clair (<code>#f4f4f4</code>).</li>
+          <li>Supprime les marges et les paddings par défaut du <code>body</code>.</li>
+        </ul>
+      </li>
+      <li><strong>Mise en page :</strong>
+        <ul>
+          <li>.container : Définit une largeur maximale (800px), centre le contenu (<code>margin: 30px auto</code>), ajoute un fond blanc, des bordures arrondies et une ombre portée.</li>
+        </ul>
+      </li>
+      <li><strong>Titres et textes :</strong>
+        <ul>
+          <li><code>h2, h3</code> : Couleur de texte foncée (<code>#333</code>).</li>
+          <li><code>label</code> : Affichage en bloc avec un <code>margin-top: 10px</code>, mise en gras pour plus de lisibilité.</li>
+        </ul>
+      </li>
+      <li><strong>Champs de formulaire :</strong>
+        <ul>
+          <li><code>input[type="text"], input[type="email"], input[type="password"]</code> : Largeur de 100%, bordure grise (<code>#ccc</code>), arrondie, avec espacement (<code>padding: 8px</code>, <code>margin-bottom: 10px</code>).</li>
+        </ul>
+      </li>
+      <li><strong>Boutons :</strong>
+        <ul>
+          <li><code>button</code> : Fond bleu (<code>#007bff</code>), texte blanc, arrondi et effet au survol (<code>#0056b3</code>).</li>
+        </ul>
+      </li>
+      <li><strong>Messages :</strong>
+        <ul>
+          <li><code>.message</code> : Fond vert clair pour succès (<code>#dff0d8</code>), texte vert foncé (<code>#3c763d</code>).</li>
+          <li><code>.message.error</code> : Fond rouge clair pour erreurs (<code>#f2dede</code>), texte rouge (<code>#a94442</code>).</li>
+        </ul>
+      </li>
+      <li><strong>Tableaux :</strong>
+        <ul>
+          <li><code>table</code> : Bordures grises (<code>#ddd</code>), espacement des cellules (<code>padding: 10px</code>), en-tête avec fond légèrement gris (<code>#f8f8f8</code>).</li>
+        </ul>
+      </li>
+      <li><strong>Liens :</strong>
+        <ul>
+          <li><code>a</code> : Couleur bleue (<code>#007bff</code>), soulignement au survol.</li>
+        </ul>
+      </li>
+    </ul>
+    
+    <p>2</p>
+  </div>
+</body>
+</html>
