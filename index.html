@@ -1,1 +1,256 @@
 test
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Documentation de l'API</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+    section {
+      margin: 20px;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 5px;
+    }
+    h1, h2, h3 {
+      color: #333;
+    }
+    pre {
+      background: #eee;
+      padding: 10px;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+    code {
+      font-family: monospace;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+    ul {
+      list-style-type: disc;
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Documentation de l'API</h1>
+</header>
+
+<section>
+  <h2>Introduction</h2>
+  <p>Cette API permet de gérer [précisez ici la fonctionnalité de votre API, par exemple : "la gestion des utilisateurs et des ressources"]. Elle offre une interface complète afin d’effectuer toutes les opérations nécessaires via des requêtes HTTP.</p>
+</section>
+
+<section>
+  <h2>Authentification</h2>
+  <p>Pour accéder aux endpoints de l’API, une authentification est nécessaire. Utilisez votre clé API comme suit :</p>
+  <pre>
+Authorization: Bearer VOTRE_CLE_API
+  </pre>
+</section>
+
+<section>
+  <h2>Liste des Endpoints et Requêtes</h2>
+  
+  <!-- Exemple de requête GET -->
+  <h3>1. GET /endpoint1</h3>
+  <p><strong>Description :</strong> Récupère la liste des éléments ou une ressource spécifique.</p>
+  <h4>Paramètres</h4>
+  <ul>
+    <li><strong>param1</strong> (obligatoire) – Description du paramètre.</li>
+    <li><strong>param2</strong> (optionnel) – Description du paramètre.</li>
+  </ul>
+  <h4>Exemple de requête</h4>
+  <pre>
+GET /endpoint1?param1=valeur1&param2=valeur2 HTTP/1.1
+Host: api.votredomaine.com
+Authorization: Bearer VOTRE_CLE_API
+  </pre>
+  <h4>Exemple de réponse</h4>
+  <pre>
+{
+  "status": "success",
+  "data": {
+    /* données retournées */
+  }
+}
+  </pre>
+
+  <!-- Exemple de requête POST -->
+  <h3>2. POST /endpoint2</h3>
+  <p><strong>Description :</strong> Crée une nouvelle ressource.</p>
+  <h4>Paramètres (body)</h4>
+  <ul>
+    <li><strong>field1</strong> (obligatoire) – Description du champ.</li>
+    <li><strong>field2</strong> (optionnel) – Description du champ.</li>
+  </ul>
+  <h4>Exemple de requête</h4>
+  <pre>
+POST /endpoint2 HTTP/1.1
+Host: api.votredomaine.com
+Authorization: Bearer VOTRE_CLE_API
+Content-Type: application/json
+
+{
+  "field1": "valeur1",
+  "field2": "valeur2"
+}
+  </pre>
+  <h4>Exemple de réponse</h4>
+  <pre>
+{
+  "status": "success",
+  "data": {
+    /* nouvelle ressource créée */
+  }
+}
+  </pre>
+
+  <!-- Exemple de requête PUT -->
+  <h3>3. PUT /endpoint3/{id}</h3>
+  <p><strong>Description :</strong> Met à jour une ressource existante identifiée par son <code>id</code>.</p>
+  <h4>Paramètres</h4>
+  <ul>
+    <li><strong>id</strong> (obligatoire dans l'URL) – Identifiant de la ressource.</li>
+    <li><strong>data</strong> (obligatoire dans le body) – Données à mettre à jour.</li>
+  </ul>
+  <h4>Exemple de requête</h4>
+  <pre>
+PUT /endpoint3/123 HTTP/1.1
+Host: api.votredomaine.com
+Authorization: Bearer VOTRE_CLE_API
+Content-Type: application/json
+
+{
+  "data": "nouvelle valeur"
+}
+  </pre>
+  <h4>Exemple de réponse</h4>
+  <pre>
+{
+  "status": "success",
+  "data": {
+    /* ressource mise à jour */
+  }
+}
+  </pre>
+
+  <!-- Exemple de requête DELETE -->
+  <h3>4. DELETE /endpoint4/{id}</h3>
+  <p><strong>Description :</strong> Supprime une ressource identifiée par son <code>id</code>.</p>
+  <h4>Paramètres</h4>
+  <ul>
+    <li><strong>id</strong> (obligatoire dans l'URL) – Identifiant de la ressource à supprimer.</li>
+  </ul>
+  <h4>Exemple de requête</h4>
+  <pre>
+DELETE /endpoint4/123 HTTP/1.1
+Host: api.votredomaine.com
+Authorization: Bearer VOTRE_CLE_API
+  </pre>
+  <h4>Exemple de réponse</h4>
+  <pre>
+{
+  "status": "success",
+  "message": "La ressource a été supprimée"
+}
+  </pre>
+
+  <!-- Exemple de requête PATCH -->
+  <h3>5. PATCH /endpoint5/{id}</h3>
+  <p><strong>Description :</strong> Met à jour partiellement une ressource.</p>
+  <h4>Paramètres</h4>
+  <ul>
+    <li><strong>id</strong> (obligatoire dans l'URL) – Identifiant de la ressource.</li>
+    <li><strong>field</strong> (obligatoire dans le body) – Champ à mettre à jour.</li>
+  </ul>
+  <h4>Exemple de requête</h4>
+  <pre>
+PATCH /endpoint5/123 HTTP/1.1
+Host: api.votredomaine.com
+Authorization: Bearer VOTRE_CLE_API
+Content-Type: application/json
+
+{
+  "field": "valeur mise à jour"
+}
+  </pre>
+  <h4>Exemple de réponse</h4>
+  <pre>
+{
+  "status": "success",
+  "data": {
+    /* ressource partiellement mise à jour */
+  }
+}
+  </pre>
+
+  <!-- Exemple de requête OPTIONS -->
+  <h3>6. OPTIONS /endpointX</h3>
+  <p><strong>Description :</strong> Permet de connaître les méthodes HTTP autorisées pour l’endpoint.</p>
+  <h4>Exemple de requête</h4>
+  <pre>
+OPTIONS /endpointX HTTP/1.1
+Host: api.votredomaine.com
+Authorization: Bearer VOTRE_CLE_API
+  </pre>
+  <h4>Exemple de réponse</h4>
+  <pre>
+HTTP/1.1 200 OK
+Allow: GET, POST, PUT, DELETE, PATCH, OPTIONS
+  </pre>
+  
+</section>
+
+<section>
+  <h2>Liste complète des requêtes possibles</h2>
+  <ul>
+    <li>GET /endpoint1</li>
+    <li>POST /endpoint2</li>
+    <li>PUT /endpoint3/{id}</li>
+    <li>DELETE /endpoint4/{id}</li>
+    <li>PATCH /endpoint5/{id}</li>
+    <li>OPTIONS /endpointX</li>
+    <li>[Ajoutez ici tous les autres endpoints spécifiques à votre API]</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Gestion des erreurs</h2>
+  <p>En cas d’erreur, l’API renvoie un code HTTP approprié ainsi qu’un objet JSON contenant un message descriptif. Par exemple :</p>
+  <pre>
+{
+  "status": "error",
+  "message": "Description de l'erreur"
+}
+  </pre>
+</section>
+
+<section>
+  <h2>Support et Contact</h2>
+  <p>Pour toute question ou demande d'assistance, veuillez contacter <a href="mailto:support@votredomaine.com">support@votredomaine.com</a>.</p>
+</section>
+
+</body>
+</html>
